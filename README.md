@@ -1,14 +1,10 @@
 # South Park Messenger
 
-> *"Respect my authoritah!"* — Eric Cartman, probably to a message queue
-
 A small distributed microservice application that lets South Park characters send and receive messages **asynchronously**.
 
 A **Go HTTP API** built with **Hexagonal Architecture (Ports & Adapters)** accepts messages and publishes them to a **RabbitMQ topic exchange**. A **Python consumer** listens on the `southpark_messages` queue and prints every message to the console. A **timed spammer script** keeps the town busy with random South Park quotes.
 
 Everything starts with a single command: `docker compose up --build`.
-
-**Author:** _[your name + student number]_ · **Course:** SSP2 · **Hand-in:** 30 October 2026
 
 ---
 
@@ -22,11 +18,9 @@ Everything starts with a single command: `docker compose up --build`.
 6. [Python consumer](#python-consumer)
 7. [Timed spammer](#timed-spammer)
 8. [Docker Compose](#docker-compose)
-9. [Running without Docker (development)](#running-without-docker-development)
 10. [Tests](#tests)
 11. [Design decisions](#design-decisions)
 12. [Project structure](#project-structure)
-13. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -59,7 +53,7 @@ flowchart LR
 No local Go or Python installation is needed.
 
 ```bash
-git clone <this-repo-url>
+git clone https://github.com/nazpedawi/southpark-messenger.git
 cd southpark-messenger
 docker compose up --build
 ```
@@ -174,20 +168,11 @@ flowchart LR
 5. `adapters/rabbitmq` serializes the message to JSON and publishes it to the topic exchange.
 6. The handler returns `201 Created` with the message.
 
-### Swappable adapters (proven, not just claimed)
+### Swappable adapters
 
-During development the API first ran with a **temporary logging publisher** in `main.go`, before RabbitMQ existed. Switching to RabbitMQ meant changing **one line** in `main.go`. `domain/`, `ports/`, `app/` and `adapters/rest/` did not change. The git history shows this step.
+During development the API first ran with a **temporary logging publisher** in `main.go`, before RabbitMQ existed. Switching to RabbitMQ meant changing **one line** in `main.go`.
 
 The unit tests use the same idea: a **fake publisher** replaces RabbitMQ entirely (see [Tests](#tests)).
-
-**Compile-time checks:** both implementations are verified against their port at compile time:
-
-```go
-var _ ports.MessageService = DefaultMessageService{}
-var _ ports.MessagePublisher = (*RabbitMQPublisher)(nil)
-```
-
----
 
 ## RabbitMQ: topic exchange
 
@@ -246,7 +231,7 @@ Kenny: "Mmmph mmmph mmph mmmph!"   (routing key: messages.kenny)
 
 [`spammer/spammer.py`](spammer/spammer.py) picks a random South Park quote every `SPAM_INTERVAL_SECONDS` (default 5) and `POST`s it to the Go API. It goes through the same validation as any other client.
 
-- Uses **only the Python standard library** (`urllib`, `json`, `random`, `time`), so it has no dependencies.
+- Uses **only the Python standard library**, so it has no dependencies.
 - If the API isn't reachable yet (e.g. during startup) it logs a message and retries on the next tick instead of crashing.
 - Configurable through environment variables: `GO_API_URL`, `SPAM_INTERVAL_SECONDS`.
 
@@ -264,47 +249,7 @@ Kenny: "Mmmph mmmph mmph mmmph!"   (routing key: messages.kenny)
 
 **Service discovery:** inside Docker, services reach each other by **service name**. The API connects to `amqp://…@rabbitmq:5672/`, and the spammer calls `http://go-api:8080`. This is why all connection URLs are environment variables, with `localhost` as the default for local development.
 
-**Images:**
-- `go-api` uses a **multi-stage build**: stage 1 (`golang:1.27-alpine`) compiles a static binary (`CGO_ENABLED=0`), and stage 2 (`alpine`) contains only that binary. The final image is small and has no source code or compiler.
-- `consumer` and `spammer` use `python:3.13-slim`. Requirements are copied and installed **before** the code, so Docker's layer cache skips `pip install` when only the code changes.
-- `.dockerignore` files keep the local `.venv` and cache folders out of the images.
-
 **Credentials:** RabbitMQ credentials are **not hardcoded in the code**. They come from environment variables, which can be set in a `.env` file (see [`.env.example`](.env.example)). `.env` is in `.gitignore`. Compose falls back to the default `southpark`/`southpark`, so `docker compose up --build` works from a clean clone. Use letters and numbers only, because the password becomes part of a URL.
-
----
-
-## Running without Docker (development)
-
-Start only RabbitMQ in Docker:
-
-```bash
-docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-```
-
-(Locally the default login is `guest` / `guest`, which matches the defaults in the code.)
-
-**Go API:**
-
-```bash
-cd go-api
-go run .
-```
-
-**Consumer** (Windows PowerShell):
-
-```powershell
-cd consumer
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe consumer.py
-```
-
-**Spammer:**
-
-```bash
-cd spammer
-python spammer.py
-```
 
 ---
 
@@ -345,13 +290,6 @@ The structure follows the patterns from the course material (REST-Golang and EDA
 | Durable exchange/queue + persistent messages | Messages survive a RabbitMQ restart |
 | Manual ack in the consumer | A message is only removed after it has been processed |
 | gorilla/mux with `.Methods("POST")` | Same router as the course; other methods automatically get `405` |
-
-### Possible improvements
-
-- Automatic reconnect when RabbitMQ restarts while the API is running (currently publishing returns `500` until the API is restarted).
-- A dead-letter queue for messages the consumer cannot process.
-- A healthcheck endpoint on the Go API, so other services can wait for it.
-- HTTP handler tests with `net/http/httptest`.
 
 ---
 
@@ -396,13 +334,3 @@ southpark-messenger/
 ```
 
 ---
-
-## Troubleshooting
-
-| Problem | Cause | Fix |
-|---|---|---|
-| `port is already allocated` | Another RabbitMQ container or a local `go run .` is still running | `docker stop rabbitmq`, stop local processes, try again |
-| `go-api-1 exited with code 1` once, then it works | It started a moment too early | Nothing: `restart: on-failure` handles it |
-| `ACCESS_REFUSED` in the logs | Custom `.env` password contains special characters | Use letters and numbers only |
-| Dashboard login fails | Compose uses its own user | Log in with `southpark` / `southpark` (or your `.env` values) |
-| No consumer output | Old image still cached | `docker compose up --build --force-recreate` |
