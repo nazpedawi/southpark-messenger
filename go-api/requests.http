@@ -30,7 +30,7 @@ Content-Type: application/json
 
 { "author": "Kenny"
 
-### Wrong type -> 400
+### Wrong data type -> 400
 POST http://localhost:8080/messages
 Content-Type: application/json
 
