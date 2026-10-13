@@ -1,0 +1,40 @@
+### Valid message -> 201
+POST http://localhost:8080/messages
+Content-Type: application/json
+
+{
+  "author": "Cartman",
+  "body": "Respect my authoritah!"
+}
+
+### Missing author -> 400
+POST http://localhost:8080/messages
+Content-Type: application/json
+
+{
+  "body": "Oh my God, they killed Kenny!"
+}
+
+### Empty body -> 400
+POST http://localhost:8080/messages
+Content-Type: application/json
+
+{
+  "author": "Kyle",
+  "body": "   "
+}
+
+### Broken JSON -> 400
+POST http://localhost:8080/messages
+Content-Type: application/json
+
+{ "author": "Kenny"
+
+### Wrong type -> 400
+POST http://localhost:8080/messages
+Content-Type: application/json
+
+{
+  "author": 123,
+  "body": "mmph mmph"
+}
