@@ -168,20 +168,11 @@ flowchart LR
 5. `adapters/rabbitmq` serializes the message to JSON and publishes it to the topic exchange.
 6. The handler returns `201 Created` with the message.
 
-### Swappable adapters (proven, not just claimed)
+### Swappable adapters
 
-During development the API first ran with a **temporary logging publisher** in `main.go`, before RabbitMQ existed. Switching to RabbitMQ meant changing **one line** in `main.go`. `domain/`, `ports/`, `app/` and `adapters/rest/` did not change. The git history shows this step.
+During development the API first ran with a **temporary logging publisher** in `main.go`, before RabbitMQ existed. Switching to RabbitMQ meant changing **one line** in `main.go`.
 
 The unit tests use the same idea: a **fake publisher** replaces RabbitMQ entirely (see [Tests](#tests)).
-
-**Compile-time checks:** both implementations are verified against their port at compile time:
-
-```go
-var _ ports.MessageService = DefaultMessageService{}
-var _ ports.MessagePublisher = (*RabbitMQPublisher)(nil)
-```
-
----
 
 ## RabbitMQ: topic exchange
 
