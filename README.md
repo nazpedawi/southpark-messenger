@@ -192,8 +192,6 @@ The routing key is built from the author name: lowercased, with every character 
 
 ### Evidence
 
-_Add your screenshots to `docs/images/` and they will show up here:_
-
 | Exchange `southpark` (topic) with binding `messages.#` | Message in the queue with routing key `messages.cartman` |
 |---|---|
 | ![Exchange](docs/images/rabbitmq-exchange.png) | ![Message](docs/images/rabbitmq-message.png) |
