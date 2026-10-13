@@ -1,0 +1,10 @@
+# Go
+*.exe
+go-api/go-api
+# Python
+__pycache__/
+*.pyc
+.venv/
+# Secrets / OS
+.env
+.DS_Store
