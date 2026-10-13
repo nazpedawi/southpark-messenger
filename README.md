@@ -53,7 +53,7 @@ flowchart LR
 No local Go or Python installation is needed.
 
 ```bash
-git clone <this-repo-url>
+git clone https://github.com/nazpedawi/southpark-messenger.git
 cd southpark-messenger
 docker compose up --build
 ```
