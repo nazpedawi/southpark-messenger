@@ -231,7 +231,7 @@ Kenny: "Mmmph mmmph mmph mmmph!"   (routing key: messages.kenny)
 
 [`spammer/spammer.py`](spammer/spammer.py) picks a random South Park quote every `SPAM_INTERVAL_SECONDS` (default 5) and `POST`s it to the Go API. It goes through the same validation as any other client.
 
-- Uses **only the Python standard library** (`urllib`, `json`, `random`, `time`), so it has no dependencies.
+- Uses **only the Python standard library**, so it has no dependencies.
 - If the API isn't reachable yet (e.g. during startup) it logs a message and retries on the next tick instead of crashing.
 - Configurable through environment variables: `GO_API_URL`, `SPAM_INTERVAL_SECONDS`.
 
