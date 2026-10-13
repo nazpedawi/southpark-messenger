@@ -5,8 +5,8 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-southpark}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-southpark}
     ports:
-      - "5672:5672"    # AMQP (for running the Go API / consumer outside Docker)
-      - "15672:15672"  # management UI: http://localhost:15672
+      - "5672:5672" # AMQP (for running the Go API / consumer outside Docker)
+      - "15672:15672" # management UI: http://localhost:15672
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 5s
@@ -31,4 +31,13 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    restart: on-failure
+
+  spammer:
+    build: ./spammer
+    environment:
+      GO_API_URL: http://go-api:8080
+      SPAM_INTERVAL_SECONDS: "5"
+    depends_on:
+      - go-api
     restart: on-failure
