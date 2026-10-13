@@ -1,0 +1,34 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-southpark}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-southpark}
+    ports:
+      - "5672:5672"    # AMQP (for running the Go API / consumer outside Docker)
+      - "15672:15672"  # management UI: http://localhost:15672
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  go-api:
+    build: ./go-api
+    environment:
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-southpark}:${RABBITMQ_PASSWORD:-southpark}@rabbitmq:5672/
+    ports:
+      - "8080:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
+
+  consumer:
+    build: ./consumer
+    environment:
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-southpark}:${RABBITMQ_PASSWORD:-southpark}@rabbitmq:5672/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: on-failure
