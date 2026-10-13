@@ -249,47 +249,7 @@ Kenny: "Mmmph mmmph mmph mmmph!"   (routing key: messages.kenny)
 
 **Service discovery:** inside Docker, services reach each other by **service name**. The API connects to `amqp://…@rabbitmq:5672/`, and the spammer calls `http://go-api:8080`. This is why all connection URLs are environment variables, with `localhost` as the default for local development.
 
-**Images:**
-- `go-api` uses a **multi-stage build**: stage 1 (`golang:1.27-alpine`) compiles a static binary (`CGO_ENABLED=0`), and stage 2 (`alpine`) contains only that binary. The final image is small and has no source code or compiler.
-- `consumer` and `spammer` use `python:3.13-slim`. Requirements are copied and installed **before** the code, so Docker's layer cache skips `pip install` when only the code changes.
-- `.dockerignore` files keep the local `.venv` and cache folders out of the images.
-
 **Credentials:** RabbitMQ credentials are **not hardcoded in the code**. They come from environment variables, which can be set in a `.env` file (see [`.env.example`](.env.example)). `.env` is in `.gitignore`. Compose falls back to the default `southpark`/`southpark`, so `docker compose up --build` works from a clean clone. Use letters and numbers only, because the password becomes part of a URL.
-
----
-
-## Running without Docker (development)
-
-Start only RabbitMQ in Docker:
-
-```bash
-docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-```
-
-(Locally the default login is `guest` / `guest`, which matches the defaults in the code.)
-
-**Go API:**
-
-```bash
-cd go-api
-go run .
-```
-
-**Consumer** (Windows PowerShell):
-
-```powershell
-cd consumer
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe consumer.py
-```
-
-**Spammer:**
-
-```bash
-cd spammer
-python spammer.py
-```
 
 ---
 
