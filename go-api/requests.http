@@ -7,6 +7,18 @@ Content-Type: application/json
   "body": "Respect my authoritah!"
 }
 
+### Kenny
+POST http://localhost:8080/messages
+Content-Type: application/json
+
+{ "author": "Kenny", "body": "Mmmph mmph mmmph!" }
+
+### Randy
+POST http://localhost:8080/messages
+Content-Type: application/json
+
+{ "author": "Randy", "body": "I thought this was America!" }
+
 ### Missing author -> 400
 POST http://localhost:8080/messages
 Content-Type: application/json
