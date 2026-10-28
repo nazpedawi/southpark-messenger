@@ -3,8 +3,8 @@ POST http://localhost:8080/messages
 Content-Type: application/json
 
 {
-  "author": "Cartman",
-  "body": "Respect my authoritah!"
+  "author": "Naz",
+  "body": "Testing my own message!"
 }
 
 ### Kenny
