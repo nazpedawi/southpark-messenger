@@ -1,5 +1,7 @@
 # South Park Messenger
 
+**Author:** Naz Pedawi (709378) · **Course:** SSP2
+
 A small distributed microservice application that lets South Park characters send and receive messages **asynchronously**.
 
 A **Go HTTP API** built with **Hexagonal Architecture (Ports & Adapters)** accepts messages and publishes them to a **RabbitMQ topic exchange**. A **Python consumer** listens on the `southpark_messages` queue and prints every message to the console. A **timed spammer script** keeps the town busy with random South Park quotes.
@@ -18,9 +20,9 @@ Everything starts with a single command: `docker compose up --build`.
 6. [Python consumer](#python-consumer)
 7. [Timed spammer](#timed-spammer)
 8. [Docker Compose](#docker-compose)
-10. [Tests](#tests)
-11. [Design decisions](#design-decisions)
-12. [Project structure](#project-structure)
+9. [Tests](#tests)
+10. [Design decisions](#design-decisions)
+11. [Project structure](#project-structure)
 
 ---
 
@@ -108,7 +110,7 @@ Whitespace-only values (`"   "`) count as empty. Invalid messages are **never** 
 
 ### Try it
 
-**VS Code:** open [`requests.http`](requests.http) with the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension and click **Send Request** above each example (valid and invalid cases are included).
+**VS Code:** open [`go-api/requests.http`](go-api/requests.http) with the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension and click **Send Request** above each example (valid and invalid cases are included).
 
 **curl** (Git Bash / macOS / Linux):
 
@@ -314,7 +316,8 @@ southpark-messenger/
 │   │       └── publisher.go            # outbound adapter (topic exchange)
 │   ├── go.mod / go.sum
 │   ├── Dockerfile                      # multi-stage build
-│   └── .dockerignore
+│   ├── .dockerignore
+│   └── requests.http                   # example requests (VS Code REST Client)
 ├── consumer/
 │   ├── consumer.py                     # pika consumer
 │   ├── requirements.txt
@@ -326,7 +329,6 @@ southpark-messenger/
 ├── docs/images/                        # screenshots used in this README
 ├── docker-compose.yml
 ├── .env.example                        # documents the optional .env settings
-├── requests.http                       # example requests (VS Code REST Client)
 ├── .gitignore
 └── README.md
 ```
