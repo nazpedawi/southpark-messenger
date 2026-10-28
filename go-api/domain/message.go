@@ -16,7 +16,7 @@ type Message struct {
 // NewMessage is a "constructor" helper: the proper way to create a Message.
 // It enforces the business rules, so an invalid Message can never exist.
 func NewMessage(author, body string) (*Message, *AppError) {
-	author = strings.TrimSpace(author) 
+	author = strings.TrimSpace(author)
 	body = strings.TrimSpace(body)
 
 	if author == "" {
