@@ -118,6 +118,8 @@ docker compose down
 
 Whitespace-only values (`"   "`) count as empty. Invalid messages are **never** published to RabbitMQ.
 
+**`created_at`** is set by the API (in `domain.NewMessage`) at the moment a message is accepted, and travels with the message through RabbitMQ to the consumer. Because the system is asynchronous, a message can wait in the queue before it is consumed (for example while the consumer is offline), so the time it is *processed* is not the time it was *sent*. The timestamp keeps that information with the message. Clients cannot set it themselves; the consumer currently prints only the author and body.
+
 ### Try it
 
 **VS Code:** open [`go-api/requests.http`](go-api/requests.http) with the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension and click **Send Request** above each example (valid and invalid cases are included).
@@ -292,6 +294,7 @@ The structure follows the patterns from the course material (REST-Golang and EDA
 | Handler struct wrapping the service interface + `writeResponse` helper | Mirrors `Customerhandlers` / `writeResponse` from the course |
 | Separate `ports/` and `adapters/` folders | The assignment asks for app / domain / ports / adapters; it keeps the outbound adapter out of the domain, as the slides on adapters describe |
 | `json` tags on the domain struct | As in the course's `Customer` struct; keeps the JSON contract (`author`, `body`) explicit |
+| `created_at` timestamp on every message | In an asynchronous system, sending and processing happen at different times; the timestamp records when the API accepted the message, so consumers can still know (and order by) the original time |
 | A request struct inside the REST adapter | The shape of incoming HTTP JSON is an HTTP concern; clients cannot set `created_at` themselves |
 | `github.com/rabbitmq/amqp091-go` instead of `streadway/amqp` | `streadway/amqp` (used in the course demo) is no longer maintained; `amqp091-go` is its official successor with the same API |
 | `PublishWithContext` with a 5 s timeout | `Publish` is deprecated in amqp091-go; the timeout prevents a request from hanging forever |
