@@ -54,6 +54,16 @@ flowchart LR
 **Requirements:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running).
 No local Go or Python installation is needed.
 
+**Option 1: from the zip**
+
+Unzip the project, open a terminal in the extracted folder (the one containing `docker-compose.yml`), and run:
+
+```bash
+docker compose up --build
+```
+
+**Option 2: from GitHub**
+
 ```bash
 git clone https://github.com/nazpedawi/southpark-messenger.git
 cd southpark-messenger
